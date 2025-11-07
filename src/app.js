@@ -4,6 +4,7 @@ const app=express();
 const User=require('./models/user');
 
 
+
 app.use(express.json());
 
 app.post("/signup",async(req,res)=>{
@@ -34,6 +35,7 @@ app.get("/user", async (req,res)=>{
     }
 
 })
+//Feed API to get all users
 
 app.get("/feed", async (req,res)=>{
     const userEmail=req.body.emailId;
@@ -51,10 +53,41 @@ app.get("/feed", async (req,res)=>{
     }
 
 })
-
-
-
-
+//Delete user by userId
+app.delete("/user", async (req,res)=>{
+    const userId=req.body.userId;
+    try{
+        await User.findByIdAndDelete(userId);
+        res.send("User deleted successfully");
+    }catch(err){
+        res.status(400).send("Error deleting user");
+    }   
+})
+//Update user by userId
+app.patch("/user/:userId", async (req,res)=>{
+    
+    const userId=req.params.userId;
+    const data=req.body;
+     
+    try{
+        const allowedUpdates=['imageUrl','bio','skills','gender','age'];
+        const requestedUpdates=Object.keys(data);
+        const isValidOperation=requestedUpdates.every((update)=>allowedUpdates.includes(update));
+        if(!isValidOperation){
+            return res.status(400).send("Invalid updates!");
+        }
+        if(data.skills.length>5){
+            throw new Error("Skills cannot be more than 5");
+        }
+        const user=await User.findByIdAndUpdate({ _id: userId},data,{
+            returnDocument:'after',
+            runValidators:true,
+        });
+        res.send("User updated successfully");
+    }catch(err){
+        res.status(400).send("Error updating user");
+    }  
+})
 
 connectDB().then(() => {
     console.log("Database connected successfully");
