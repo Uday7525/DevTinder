@@ -39,4 +39,15 @@
 - user.findOne() with duplicate email ids 
 - API - get user by email
 - API - Feed API - GET/feed -get all the users fromthe database 
-- API -get user by id
+- API -get user by id 
+- diff b/w patch and put 
+- api -update a user
+- explore mongoose documentation for model methods
+
+-explore schematype options for gender
+- improve  the DB schema - put all appropriate validations on each field in schema
+- add timestamps to the userSchema
+- add API level validations on patch request & signup post API 
+- DATA sanitizing - API validation for each field 
+- install validator
+- explore validator library functions and use for password,email,imageUrl
