@@ -73,3 +73,11 @@
 
 - create userScema methods to getJWT()
 - create userSchema methods to comparePassword(passwordInputByUser)
+
+- explore Tinder API's
+- Create a list all API you can think of in DevTinder
+- Group multiple routes under respective routers
+- read documentation of express.router
+- Create routes folder for managing auth,profile,request routers
+- Create authRouter,profileRouter,requestRouter
+- import these routers in app.js
