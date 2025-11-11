@@ -4,9 +4,12 @@ const app=express();
 const User=require('./models/user');
 const {validateSignupData}=require('./utils/validations');
 const bcrypt=require('bcrypt');
-
+const jwt=require('jsonwebtoken');
+const cookieParser=require('cookie-parser');
+const { userAuth } = require('./Middlewares/auth');
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup",async(req,res)=>{
     //creating a new instance of User model
@@ -15,7 +18,6 @@ app.post("/signup",async(req,res)=>{
         const {firstName,lastName,emailId,password}=req.body;
         
         const passwordHash=await bcrypt.hash(password,10)
-        console.log(passwordHash);
     
         const user=new User(
             {firstName,lastName,emailId,password:passwordHash}
@@ -29,16 +31,17 @@ app.post("/signup",async(req,res)=>{
 });
 
 app.post("/login",async(req,res)=>{
-    
-      
     try{
         const {emailId,password}=req.body; 
         const user=await User.findOne({emailId:emailId});
         if(!user){
-            throw new Error("Invalid credentials    ");
+            throw new Error("Invalid credentials");
         }   
-        const isPasswordValid=await bcrypt.compare(password,user.password);
+        const isPasswordValid=await user.validatePassword(password);
         if(isPasswordValid){
+            const token= await user.getJWT();
+
+            res.cookie("token",token,{expires:new Date(Date.now() + 8 * 3600000)});
             res.send("User logged in successfully");
         }  
         else{
@@ -50,76 +53,24 @@ app.post("/login",async(req,res)=>{
     }
 });
 
-//Get user by emailId
-app.get("/user", async (req,res)=>{
-    const userEmail=req.body.emailId;
-    
+app.get("/profile",userAuth,async(req,res)=>{
     try{
-        const user=await User.findOne({emailId:userEmail}) 
-        if(!user){
-            res.status(404).send("User not found");
-        }else{
-            res.send(user); 
-        }
-          
+        const user=req.user;
+        res.send(user);
     }catch(err){
-        res.status(400).send("Error fetching user data");
+        res.status(400).send("Error: "+ err.message);
     }
+});
 
-})
-//Feed API to get all users
+app.post("/sendConnectionRequest",userAuth,async(req,res)=>{
+    const user=req.user;
+    console.log("Connection request endpoint hit");
 
-app.get("/feed", async (req,res)=>{
-    const userEmail=req.body.emailId;
-    
-    try{
-        const user=await User.find() 
-        if(!user){
-            res.status(404).send("User not found");
-        }else{
-            res.send(user); 
-        }
-          
-    }catch(err){
-        res.status(400).send("Error fetching user data");
-    }
+    res.send(user.firstName+ " sent a connection request");
+});
 
-})
-//Delete user by userId
-app.delete("/user", async (req,res)=>{
-    const userId=req.body.userId;
-    try{
-        await User.findByIdAndDelete(userId);
-        res.send("User deleted successfully");
-    }catch(err){
-        res.status(400).send("Error deleting user");
-    }   
-})
-//Update user by userId
-app.patch("/user/:userId", async (req,res)=>{
-    
-    const userId=req.params.userId;
-    const data=req.body;
-     
-    try{
-        const allowedUpdates=['imageUrl','bio','skills','gender','age'];
-        const requestedUpdates=Object.keys(data);
-        const isValidOperation=requestedUpdates.every((update)=>allowedUpdates.includes(update));
-        if(!isValidOperation){
-            return res.status(400).send("Invalid updates!");
-        }
-        if(data.skills.length>5){
-            throw new Error("Skills cannot be more than 5");
-        }
-        const user=await User.findByIdAndUpdate({ _id: userId},data,{
-            returnDocument:'after',
-            runValidators:true,
-        });
-        res.send("User updated successfully");
-    }catch(err){
-        res.status(400).send("Error updating user");
-    }  
-})
+
+
 
 connectDB().then(() => {
     console.log("Database connected successfully");
