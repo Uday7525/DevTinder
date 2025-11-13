@@ -86,3 +86,9 @@
 - Create PATCH /profile/edit 
 - Create PATCH/profile/password API =>forgot password api
 - Make you validate all data in every POST, PATCH Apis
+
+- explore about mongo db compound indexes
+- what is $or in mongoose?
+- explore all the queries
+- why do we need index in db?
+- schema.pre() function?
