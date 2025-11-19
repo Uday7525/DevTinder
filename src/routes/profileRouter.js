@@ -6,7 +6,7 @@ const { validateProfileData} = require('../utils/validations');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 
-profileRouter.get("/profile",userAuth,async(req,res)=>{
+profileRouter.get("/profile/view",userAuth,async(req,res)=>{
     try{
         const user=req.user;
         res.send(user);
