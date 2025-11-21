@@ -51,8 +51,8 @@ userRouter.get("/user/feed", userAuth,async (req, res) => {
         limit = limit > 50 ? 50 : limit;
         const skip = (page - 1) * limit;
         const connectionRequests=await ConnectionRequestModel.find({$or:[
-            {fromUserId: loggedInUserId._id, status:"accepted"},
-            {toUserId: loggedInUserId._id, status:"accepted"}
+            {fromUserId: loggedInUserId._id,},
+            {toUserId: loggedInUserId._id,}
         ]}).select('fromUserId toUserId');
         
         const hideUserFromFeed= new Set();
