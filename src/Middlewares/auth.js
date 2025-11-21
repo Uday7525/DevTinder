@@ -11,6 +11,7 @@ const userAuth=async(req,res,next)=>{
     }
     const decodedObj= await jwt.verify(token,process.env.JWT_SECRET_KEY)
 
+    //validate the token
     const {_id}=decodedObj;
 
     const user=await User.findById(_id);
@@ -24,6 +25,9 @@ const userAuth=async(req,res,next)=>{
     }catch(err){
         res.status(400).send("ERROR: "+ err.message);
     }   
+    
+
+    //find the user from the token
 
 }
 
