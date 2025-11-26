@@ -14,8 +14,11 @@ const initializeSocket=(server)=>{
 
     const io=socket(server,{
     cors:{
-        origin:"http://localhost:5175",
+        origin:["http://localhost:5173","http://13.53.212.82"],
+        methods:["GET","POST"],
+        credentials:true,
     },
+    path:"/socket.io"
    });
 
    io.on("connection",(socket)=>{
